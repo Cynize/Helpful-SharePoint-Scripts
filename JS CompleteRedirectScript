@@ -1,0 +1,99 @@
+<script language="ecmascript" type="text/ecmascript">
+
+// Set the name of the list where the column information is located
+var hostList = 'DHSTest2'
+
+// Set the URL Destination for however many variables you need
+var googleURL = "http://www.google.com";
+var secondURL = "http://www.bing.com";
+
+// Get the current URL - This will pull the display view URL
+var currentUrl = window.location.href;
+
+// Get the current Item ID - Runs function in order to parse the URL to get just the number
+var itemId = parseURL(currentUrl);
+
+// Waits for the form to load before it runs the first function
+ExecuteOrDelayUntilScriptLoaded(function() {
+
+    statusValue();
+
+}, "sp.js");
+
+// Get field values
+function statusValue() {
+    var clientContext = new SP.ClientContext();
+    
+    // Get the list by Title
+    var targetList = clientContext.get_web().get_lists().getByTitle(hostList);
+    var camlQuery = new SP.CamlQuery();
+    // Gets the specific item based on Item ID brought in from the global variable using the parser function
+    camlQuery.set_viewXml('<View><Query><Where><Eq><FieldRef Name=\'ID\'/>' +
+        '<Value Type=\'Number\'>'+itemId+'</Value></Eq></Where></Query></View>');
+
+    this.collListItem = targetList.getItems(camlQuery);
+
+    clientContext.load(collListItem);
+
+    clientContext.executeQueryAsync(Function.createDelegate(this, this.onQuerySucceeded), Function.createDelegate(this, this.onQueryFailed));
+}
+
+function onQuerySucceeded() {
+   
+    var listItemInfo = '';
+
+    var listItemEnumerator = collListItem.getEnumerator();
+        
+    while (listItemEnumerator.moveNext()) {
+        var targetListItem = listItemEnumerator.get_current();
+        // Set variable to required field
+        var targetId = targetListItem.get_id();
+        // Set variable to required field
+        var targetTitle = targetListItem.get_item('Title');
+        // Set variable to required field
+        var targetOrganization = targetListItem.get_item('Organization');
+
+        // If statement for finding the correct new url to redirect to based on field values
+        if (targetTitle == "Testing 2" && targetOrganization == "NA") {
+
+            window.location.href = googleURL;
+
+            // Next possible redirect
+        } else if (targetTitle == "Testing 2" && targetOrganization == "Enterprise") {
+
+            window.location.href = secondURL;
+
+            //This can be an else if, if necassary. 
+        } else {
+
+            alert("Hello, this is the Else statment");
+        }
+
+        // Remove in final version - this is just to test the code
+        listItemInfo += '\nID: ' + targetId +
+            '\nTitle: ' + targetTitle + 
+            '\nOrganization: ' + targetOrganization
+    }
+
+    // An alert to let me know that it is pulling in the corect information - remove in final version
+    alert(listItemInfo.toString());
+}
+
+// Request failed message
+function onQueryFailed(sender, args) {
+    alert('Request failed. \nError: ' + args.get_message() + '\nStackTrace: ' + args.get_stackTrace());
+}
+
+// Parse URL with the passed in URL
+function parseURL(href) {
+    // Splitting everything after the set value
+    var removePreID = href.split("aspx?ID=");
+    // Using the second part of the previous split, this will split everything after the desired string
+    var removePostID = removePreID[1].split("&");
+    // Finally you are left with an array with two items. The position 0 will have the desired return
+    var result = removePostID[0];
+    // Passing the desired result to the variable
+    return(result);
+};
+
+</script>
