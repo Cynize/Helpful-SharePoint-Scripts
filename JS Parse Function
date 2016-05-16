@@ -1,0 +1,11 @@
+// Parse URL with the passed in URL
+function parseURL(href) {
+    // Splitting everything after the set value
+    var removePreID = href.split("aspx?ID=");
+    // Using the second part of the previous split, this will split everything after the desired string
+    var removePostID = removePreID[1].split("&");
+    // Finally you are left with an array with two items. The position 0 will have the desired return
+    var result = removePostID[0];
+    // Passing the desired result to the variable
+    return(result);
+};
