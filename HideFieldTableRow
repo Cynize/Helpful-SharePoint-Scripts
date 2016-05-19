@@ -1,0 +1,54 @@
+//Directly below allowed me to run the javascript after the form has loaded. We will need an onclick event, or a onfieldchange event depending on //what we want in order to tell when to activate the code. 
+ExecuteOrDelayUntilScriptLoaded(function() {
+  // Hide the field(s)
+//Directly below is where Title had been hardcoded to be hidden. This will end up being changed to a variable where we pass in whatever field we //choose that we want to hid. 
+  hideRow("Title");
+}, "sp.js");
+
+//This is the second Method that gets run. At the moment it has two types of fields getting checked and passing the value back. We can add more //depending on our requirements. 
+// Method to get a field
+function getField(fieldName) {
+  // Get the field as a textbox
+  var fld = document.querySelector("input[title='" + fieldName + "']");
+  if(fld) { return fld; }
+  
+  // Get the field as a drop down list
+  fld = document.querySelector("select[title='" + fieldName + "']");
+  if(fld) { return fld; }
+  
+  // Field not found
+  return null;
+}
+
+// Method to get the field's row element
+function getParentRow(element) {
+  // Ensure the element exists
+  if(element) {
+      // See if this is a row
+                  if(element.nodeName == "TR") {
+                    // Return the element
+                    return element;
+                 }
+                  
+                  // Check the parent element
+                  return getParentRow(element.parentNode);
+  }
+}
+
+// Method to hide a row
+// This Method will run the other two methods that get the fields and the parent row of said field. This is also where we set the display = “none”
+function hideRow(fieldName) {
+  // Get the field
+  var fld = getField(fieldName);
+  if(fld) {
+    // Get the parent row
+    var row = getParentRow(fld);
+    if(row) {
+      // Hide this row
+      row.style.display = "none";
+      
+      // Add a data attribute, so we can query this row later
+      row.setAttribute("data-field-name", fieldName);
+    }
+  }
+}
